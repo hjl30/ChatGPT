@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.jpeg" sizes="192x192">
+    <title>大聪明</title>
+    <!-- Import style -->
+    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css"/>
+    <link rel="stylesheet" th:href="@{css/index.css}"/>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Import component library -->
+    <script src="//unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/@element-plus/icons-vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+</head>
+
+<body>
+
+<div id="app">
+    <el-container class="container">
+        <el-header class="title">大聪明</el-header>
+        <el-divider></el-divider>
+        <el-main ref="main">
+            <image-com v-for="(el, index) in msgList" :src="el.image" :message="el.msg" :cls="el.cls"
+                       :text="el.textCls"/>
+        </el-main>
+        <el-divider></el-divider>
+        <el-footer style="text-align: center;">
+            <div class="input_box">
+                <el-input v-model="message" placeholder="Please input" clearable class="input" @change="ask"></el-input>
+                <el-button class="btn" type="primary" :disabled="loading" @click="ask">
+                    <el-icon v-if="!loading">
+                        <Promotion/>
+                    </el-icon>
+                    <el-icon v-else class="is-loading">
+                        <Loading/>
+                    </el-icon>
+                    <span style="margin-left: 5px;">发送</span>
+                </el-button>
+            </div>
+        </el-footer>
+    </el-container>
+</div>
+<script>
+    let app = Vue.createApp({
+        data() {
+            return {
+                robot: '/images/logo.png',
+                user: '/images/pic03.ico',
+                loading: false,
+                searching: false,
+                msgList: [{
+                    image: '/images/logo.png',
+                    msg: '请输入问题',
+                }],
+                message: undefined,
+                pageNum: 0,
+                pageSize: 10, // 默认查询10条记录
+                interval: undefined
+            }
+        },
+        watch: {
+            loading: {
+                handler() {
+                    let main = document.querySelector('.el-main');
+                    main.scrollTop = main.scrollHeight
+                    this.hidden = false
+                },
+                deep: true,
+                flush: 'post'
+            },
+            pageNum: {
+                handler() {
+                    let main = document.querySelector('.el-main');
+                    main.scrollTop = 0
+                },
+                deep: true,
+                flush: 'post'
+            },
+            msgList: {
+                handler(newVal) {
+                    let element = newVal[newVal.length - 1];
+                    if (element.textCls) {
+                        this.typeWriter(element.textCls, element.message)
+                    }
+                },
+                deep: true,
+                flush: 'post'
+            }
+        },
+        methods: {
+            // 开始问答
+            ask() {
+                if (this.message) {
+                    console.log("ask");
+                    this.msgList.push({
+                        image: this.user,
+                        msg: this.message,
+                        cls: 'img_box_right'
+                    })
+                    let msg = this.message
+                    this.message = ''
+                    this.msgList.push({
+                        image: this.robot,
+                        textCls: 'box',
+                        message: '请稍后...'
+                    })
+                    this.loading = true
+                    axios({
+                        url: '/open-ai/ask',
+                        method: "POST",
+                        data: {
+                            question: msg
+                        }
+                    }).then(res => {
+                        if (res.data.code === 1) { // 请求成功
+                            this.loading = false
+                            let el = this.msgList.pop()
+                            el.message = res.data.data.answer
+                            el.textCls = 'answer'
+                            this.msgList.push(el)
+                        } else {
+                            console.log("请求超时")
+                        }
+                    })
+                }
+            },
+
+            typeWriter(type, message) {
+                if (this.typed) {
+                    this.typed.stop()
+                }
+                if (type === 'answer') {
+                    this.interval = setInterval(() => {
+                        let main = document.querySelector('.el-main');
+                        main.scrollTop = main.scrollHeight
+                    }, 100);
+                }
+                this.typed = new Typed("." + type, {
+                    strings: [message],
+                    typeSpeed: 100, //打字的速度
+                    backSpeed: 50, //后退速度
+                    backDelay: 500, //后退延迟
+                    loop: type === "box", //是否循环 默认false
+                    startDelay: 1000, //起始时间
+                    fadeOut: true, //淡出效果
+                    showCursor: false,
+                    onComplete: () => { // 所有打字完成清除计时器
+                        if (this.interval) {
+                            clearInterval(this.interval)
+                            this.interval = undefined
+                        }
+                        let element = document.querySelector('.' + type)
+                        if (element) {
+                            element.classList.remove(type)
+                        }
+                    },
+                });
+            }
+        },
+        mounted() {
+            let main = document.querySelector('.el-main');
+            main.scrollTop = main.scrollHeight
+            main.scrollTop = 0
+        },
+    })
+    app.use(ElementPlus)
+    app.component('image-com', {
+        template: `
+          <div class="img_box" :class="cls"><img class="img" :src=src />
+          <div class="text_box" :class="text" v-text="message" ></div>
+          </div>
+        `,
+        props: ['src', 'cls', 'message', 'text'],
+    })
+    for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+        app.component(key, component)
+    }
+    app.mount('#app');
+</script>
+</body>
+
+</html>

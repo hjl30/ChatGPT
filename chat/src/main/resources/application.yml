@@ -1,0 +1,22 @@
+#chatgpt ??
+open-ai:
+  apiKey: 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
+  connectTimeout: 300
+  hostName: 127.0.0.1
+  port: 7890
+server:
+  port: 80
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://124.221.21.212:3306/chatGPT3
+    username: kfm
+    password: kfm
+    type: com.alibaba.druid.pool.DruidDataSource
+#mybatiis??
+mybatis:
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+    #指定mapper.xml路径
+  mapper-locations: mapper/**.xml

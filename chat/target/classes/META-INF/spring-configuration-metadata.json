@@ -1,0 +1,32 @@
+{
+  "groups": [
+    {
+      "name": "open-ai",
+      "type": "com.kfm.config.ChatConfig",
+      "sourceType": "com.kfm.config.ChatConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "open-ai.api-key",
+      "type": "java.lang.String",
+      "sourceType": "com.kfm.config.ChatConfig"
+    },
+    {
+      "name": "open-ai.connect-timeout",
+      "type": "java.lang.Integer",
+      "sourceType": "com.kfm.config.ChatConfig"
+    },
+    {
+      "name": "open-ai.host-name",
+      "type": "java.lang.String",
+      "sourceType": "com.kfm.config.ChatConfig"
+    },
+    {
+      "name": "open-ai.port",
+      "type": "java.lang.Integer",
+      "sourceType": "com.kfm.config.ChatConfig"
+    }
+  ],
+  "hints": []
+}

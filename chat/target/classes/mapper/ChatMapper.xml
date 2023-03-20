@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kfm.mapper.ChatMapper">
+    <insert id="insert" keyColumn="chat_id" keyProperty="chatId" parameterType="com.kfm.entity.ChatEntity"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into chat (username, user_key, model,
+        prompt, answer, is_end,
+        request_ip_address, response_json, prompt_id,
+        finish_reason, request_url
+        )
+        values (#{username,jdbcType=VARCHAR}, #{userKey,jdbcType=VARCHAR}, #{model,jdbcType=VARCHAR},
+        #{prompt,jdbcType=VARCHAR}, #{answer,jdbcType=LONGVARCHAR}, #{isEnd,jdbcType=BIT},
+        #{requestIpAddress,jdbcType=VARCHAR}, #{responseJson,jdbcType=LONGNVARCHAR}, #{promptId,jdbcType=VARCHAR},
+        #{finishReason,jdbcType=VARCHAR}, #{requestUrl,jdbcType=VARCHAR}
+        )
+    </insert>
+</mapper>
